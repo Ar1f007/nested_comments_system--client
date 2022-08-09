@@ -14,7 +14,7 @@ export const PostList = () => {
   return posts.map((post) => {
     return (
       <h1 key={post.id}>
-        <Link to={'/posts/{post.id}'}>{post.title}</Link>
+        <Link to={`/posts/${post.id}`}>{post.title}</Link>
       </h1>
     );
   });
