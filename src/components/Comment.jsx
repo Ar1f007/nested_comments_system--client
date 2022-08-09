@@ -25,12 +25,8 @@ export const Comment = ({ id, message, user, createdAt }) => {
           <IconBtn Icon={FaHeart} aria-label="Like">
             2
           </IconBtn>
-          <IconBtn Icon={FaReply} aria-label="Reply">
-            2
-          </IconBtn>
-          <IconBtn Icon={FaEdit} aria-label="Edit">
-            2
-          </IconBtn>
+          <IconBtn Icon={FaReply} aria-label="Reply"></IconBtn>
+          <IconBtn Icon={FaEdit} aria-label="Edit"></IconBtn>
           <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
       </div>

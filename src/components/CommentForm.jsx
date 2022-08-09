@@ -20,7 +20,7 @@ export const CommentForm = ({ initialValue = '', loading, error, onSubmit, autoF
           {loading ? 'Loading' : 'Post'}
         </button>
       </div>
-      <div className="error-msg">Error</div>
+      {error && <div className="error-msg">{error}</div>}
     </form>
   );
 };
