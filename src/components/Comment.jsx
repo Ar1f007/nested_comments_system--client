@@ -4,7 +4,7 @@ import { usePost } from '../context/PostContext';
 import { CommentList } from './CommentList';
 import { useState } from 'react';
 import { CommentForm } from './CommentForm';
-import { createComment } from '../services/comments';
+import { createComment, updateComment } from '../services/comments';
 import { useAsyncFn } from '../hooks/useAsync';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -12,17 +12,32 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   timeStyle: 'short',
 });
 export const Comment = ({ id, message, user, createdAt }) => {
-  const { post, getReplies, createLocalComment } = usePost();
+  const { post, getReplies, createLocalComment, updateLocalComment } = usePost();
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const createCommentFn = useAsyncFn(createComment);
+  const updateCommentFn = useAsyncFn(updateComment);
 
   const onCommentReply = (message) => {
     return createCommentFn.execute({ postId: post.id, message, parentId: id }).then((comment) => {
       createLocalComment(comment);
       setIsReplying(false);
     });
+  };
+
+  const onCommentUpdate = (message) => {
+    return updateCommentFn
+      .execute({
+        postId: post.id,
+        message,
+        id,
+      })
+      .then((comment) => {
+        setIsEditing(false);
+        updateLocalComment(id, comment.message);
+      });
   };
   return (
     <>
@@ -32,18 +47,37 @@ export const Comment = ({ id, message, user, createdAt }) => {
           <span className="date">{dateFormatter.format(Date.parse(createdAt))}</span>
         </div>
 
-        <div className="message">{message}</div>
+        {isEditing ? (
+          <CommentForm
+            autoFocus
+            initialValue={message}
+            onSubmit={onCommentUpdate}
+            loading={updateCommentFn.loading}
+            error={updateCommentFn.error}
+          />
+        ) : (
+          <div className="message">{message}</div>
+        )}
+
         <div className="footer">
           <IconBtn Icon={FaHeart} aria-label="Like">
             2
           </IconBtn>
+
           <IconBtn
             isActive={isReplying}
             onClick={() => setIsReplying((prev) => !prev)}
             Icon={FaReply}
             aria-label={isReplying ? 'Cancel reply' : 'Reply'}
-          ></IconBtn>
-          <IconBtn Icon={FaEdit} aria-label="Edit"></IconBtn>
+          />
+
+          <IconBtn
+            isActive={isEditing}
+            onClick={() => setIsEditing((prev) => !prev)}
+            Icon={FaEdit}
+            aria-label={isEditing ? 'Cancel edit' : 'Edit'}
+          />
+
           <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
         </div>
       </div>
