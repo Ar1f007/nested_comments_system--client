@@ -4,7 +4,7 @@ import { usePost } from '../context/PostContext';
 import { CommentList } from './CommentList';
 import { useState } from 'react';
 import { CommentForm } from './CommentForm';
-import { createComment, updateComment } from '../services/comments';
+import { createComment, deleteComment, updateComment } from '../services/comments';
 import { useAsyncFn } from '../hooks/useAsync';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -12,13 +12,15 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   timeStyle: 'short',
 });
 export const Comment = ({ id, message, user, createdAt }) => {
-  const { post, getReplies, createLocalComment, updateLocalComment } = usePost();
+  const { post, getReplies, createLocalComment, updateLocalComment, deleteLocalComment } =
+    usePost();
   const childComments = getReplies(id);
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const createCommentFn = useAsyncFn(createComment);
   const updateCommentFn = useAsyncFn(updateComment);
+  const deleteCommentFn = useAsyncFn(deleteComment);
 
   const onCommentReply = (message) => {
     return createCommentFn.execute({ postId: post.id, message, parentId: id }).then((comment) => {
@@ -37,6 +39,17 @@ export const Comment = ({ id, message, user, createdAt }) => {
       .then((comment) => {
         setIsEditing(false);
         updateLocalComment(id, comment.message);
+      });
+  };
+
+  const onCommentDelete = () => {
+    return deleteCommentFn
+      .execute({
+        postId: post.id,
+        id,
+      })
+      .then((comment) => {
+        deleteLocalComment(comment.id);
       });
   };
   return (
@@ -78,7 +91,13 @@ export const Comment = ({ id, message, user, createdAt }) => {
             aria-label={isEditing ? 'Cancel edit' : 'Edit'}
           />
 
-          <IconBtn Icon={FaTrash} aria-label="Delete" color="danger" />
+          <IconBtn
+            disabled={deleteCommentFn.loading}
+            onClick={() => onCommentDelete(id)}
+            Icon={FaTrash}
+            aria-label="Delete"
+            color="danger"
+          />
         </div>
       </div>
 

@@ -51,6 +51,12 @@ export const PostProvider = ({ children }) => {
     });
   }
 
+  function deleteLocalComment(id) {
+    setComments((prevComments) => {
+      return prevComments.filter((comment) => comment.id !== id);
+    });
+  }
+
   return (
     <PostContext.Provider
       value={{
@@ -59,6 +65,7 @@ export const PostProvider = ({ children }) => {
         rootComments: commentsByParentId[null],
         createLocalComment,
         updateLocalComment,
+        deleteLocalComment,
       }}
     >
       {loading ? <h1>Loading</h1> : error ? <h1 className="error-msg">{error}</h1> : children}
