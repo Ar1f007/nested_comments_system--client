@@ -26,12 +26,16 @@ export const PostProvider = ({ children }) => {
     return group;
   }, [post?.comments]);
 
-  console.log(commentsByParentId);
+  function getReplies(parentId) {
+    return commentsByParentId[parentId];
+  }
 
   return (
     <PostContext.Provider
       value={{
         post: { id, ...post },
+        getReplies,
+        rootComments: commentsByParentId[null],
       }}
     >
       {loading ? <h1>Loading</h1> : error ? <h1 className="error-msg">{error}</h1> : children}
